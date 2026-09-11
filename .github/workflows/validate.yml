@@ -1,0 +1,29 @@
+name: CI Validation & Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Security & Schema Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Security Leak Scanner
+        run: |
+          chmod +x ./scripts/*.sh
+          ./scripts/sanitize.sh
+
+      - name: Validate Config Templates JSON
+        run: |
+          for f in configs/*.template; do
+            echo "Validating $f..."
+            jq . "$f" >/dev/null
+          done
+          echo "All templates are valid JSON."

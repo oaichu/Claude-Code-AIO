@@ -1,0 +1,41 @@
+name: Auto-Sync Upstreams
+
+on:
+  schedule:
+    # Run daily at 02:00 UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync Upstream Repositories
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run Upstream Sync Engine
+        run: |
+          chmod +x ./scripts/*.sh
+          ./scripts/sync-upstream.sh
+
+      - name: Check for Changes & Auto-Commit
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected. Committing and pushing to main..."
+            git add skills/ agents/ rules/
+            git commit -m "chore(upstream): auto-sync skills & agents [skip ci]"
+            git push origin main
+          else
+            echo "Repository is already up to date. No changes to commit."
+          fi

@@ -1,0 +1,21 @@
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.token
+
+# Logs & Caches
+*.log
+.DS_Store
+Thumbs.db
+node_modules/
+.npm/
+dist/
+build/
+
+# Local backups & artifacts
+backups/
+*.bak*
+*.tmp
